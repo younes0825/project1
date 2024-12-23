@@ -1,9 +1,12 @@
 import pygame
 import math
+import time
 
 #Colours
 WHITE = (255,255,255)
 BLACK = (0,0,0)
+GREEN = (0, 128, 0)
+RED = (255, 0, 0)
 
 pygame.init()
 
@@ -26,19 +29,21 @@ def Player():
 AI_radius = 15
 AI_speed = 3
 AI_pos = [100,100]
+AI_health = 100
 
 def move_ai():
-    pygame.draw.circle(screen, (BLACK), (AI_pos), 15)
-    dx = Player_pos[0] - AI_pos[0]
-    dy = Player_pos[1] - AI_pos[1]
-    distance = math.hypot(dx,dy)
+    if AI_health > 0:
+        pygame.draw.circle(screen, (BLACK), (AI_pos), 15)
+        dx = Player_pos[0] - AI_pos[0]
+        dy = Player_pos[1] - AI_pos[1]
+        distance = math.hypot(dx,dy)
 
-    if distance > 0:
-        dx /= distance
-        dy /= distance
+        if distance > 0:
+            dx /= distance
+            dy /= distance
 
-    AI_pos[0] += dx * AI_speed
-    AI_pos[1] += dy * AI_speed
+        AI_pos[0] += dx * AI_speed
+        AI_pos[1] += dy * AI_speed
 
 #Bullets
 Bullet_radius = 5
@@ -46,7 +51,6 @@ Bullet_speed = 10
 Bullet_list = []
 
 def shoot_bullet():
-    
     shoot_pos = pygame.mouse.get_pos()
     dx = Player_pos[0] - shoot_pos[0]
     dy = Player_pos[1] - shoot_pos[1]
@@ -86,6 +90,16 @@ while run:
         else:
             bullet[0] -= bullet[2] * Bullet_speed
             bullet[1] -= bullet[3] * Bullet_speed
+
+        bullet_distance = math.hypot(bullet[0] - AI_pos[0], bullet[1] - AI_pos[1])
+        if bullet_distance < AI_radius + Bullet_radius:
+            AI_health -= 20
+            Bullet_list.remove(bullet)
+
+    Health_bar_pos = [AI_pos[0] - 50, AI_pos[1] - 40]
+    for i in range(AI_health):
+        Health_bar = pygame.draw.rect(screen, (GREEN), (Health_bar_pos[0], Health_bar_pos[1], AI_health, 15))
+        Death_bar = pygame.draw.rect(screen, (RED), (Health_bar_pos[0] + AI_healtha, Health_bar_pos[1], 100-AI_health, 15))
 
     keys = pygame.key.get_pressed()
 
