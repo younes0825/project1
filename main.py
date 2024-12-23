@@ -99,7 +99,7 @@ while run:
     Health_bar_pos = [AI_pos[0] - 50, AI_pos[1] - 40]
     for i in range(AI_health):
         Health_bar = pygame.draw.rect(screen, (GREEN), (Health_bar_pos[0], Health_bar_pos[1], AI_health, 15))
-        Death_bar = pygame.draw.rect(screen, (RED), (Health_bar_pos[0] + AI_healtha, Health_bar_pos[1], 100-AI_health, 15))
+        Death_bar = pygame.draw.rect(screen, (RED), (Health_bar_pos[0] + AI_health, Health_bar_pos[1], 100-AI_health, 15))
 
     keys = pygame.key.get_pressed()
 
