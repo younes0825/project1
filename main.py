@@ -192,6 +192,7 @@ while run:
             AI_pos = [100,100]
             bullet_list = []
             time_elapsed = 60
+            kill_count = 0
 
     keys = pygame.key.get_pressed()
 
