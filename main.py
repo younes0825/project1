@@ -1,5 +1,6 @@
 import pygame
 import math
+import random
 
 #Colours
 WHITE = (255,255,255)
@@ -26,15 +27,18 @@ def Player():
     pygame.draw.circle(screen, (BLACK), (Player_pos), Player_radius)
 
 #AI
+kill_count = 0
 AI_radius = 15
 AI_speed = 3
 AI_pos = [100,100]
 AI_health = 100
 damage_interval = 1000
 last_hit_time = 0
+Random_pos = [random.randint(0,800), random.randint(0,600)]
 
 def move_ai():
     if AI_health > 0:
+        global kill_count
         pygame.draw.circle(screen, (BLACK), (AI_pos), 15)
         dx = Player_pos[0] - AI_pos[0]
         dy = Player_pos[1] - AI_pos[1]
@@ -46,6 +50,15 @@ def move_ai():
 
         AI_pos[0] += dx * AI_speed
         AI_pos[1] += dy * AI_speed
+    else:
+        respawn_new_ai()
+        kill_count += 1
+
+#Respawn AI
+def respawn_new_ai():
+    global AI_health, AI_pos
+    AI_health = 100
+    AI_pos = [random.randint(50, WIDTH - 50), random.randint(50, HEIGHT - 50)]
 
 #Bullets
 Bullet_radius = 5
@@ -66,6 +79,23 @@ def shoot_bullet():
     y = Player_pos[1]
     
     Bullet_list.append([x, y, dx, dy])
+
+#Time control
+last_time_checked = pygame.time.get_ticks()
+time_elapsed = 60
+def timer(time):
+    Font = pygame.font.Font(None, 50)
+    timer = Font.render(time, True, BLACK)
+    screen.blit(timer, (25, 25))
+
+#Kill counter
+def kill_counter():
+    Font = pygame.font.Font(None, 50)
+    Small_Font = pygame.font.Font(None, 30)
+    kill_subtitle = Small_Font.render("Kills", True, BLACK)
+    tracker = Font.render(str(kill_count), True, BLACK)
+    screen.blit(tracker, (750, 50))
+    screen.blit(kill_subtitle, (735, 20))
 
 #Game loss screen
 def game_lost():
@@ -100,6 +130,18 @@ while run:
 
     move_ai()
 
+    #Timer
+    time_tracker = pygame.time.get_ticks()
+    if time_tracker - last_time_checked >= 1000:
+        if time_elapsed >= 0:
+            time_elapsed -= 1
+        last_time_checked = time_tracker
+
+    #Kill counter
+    kill_counter()
+
+    timer(str(time_elapsed))
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
@@ -132,8 +174,9 @@ while run:
     #Player Health bar
     Health_bar_pos2 = [Player_pos[0] - 50, Player_pos[1] - 40]
     for i in range(Player_health):
-        Health_bar2 = pygame.draw.rect(screen, (GREEN), (Health_bar_pos2[0], Health_bar_pos2[1], Player_health, 15))
-        Death_bar2 = pygame.draw.rect(screen, (RED), (Health_bar_pos2[0] + Player_health, Health_bar_pos2[1], 100 - Player_health, 15))
+        if AI_health > 0:
+            Health_bar2 = pygame.draw.rect(screen, (GREEN), (Health_bar_pos2[0], Health_bar_pos2[1], Player_health, 15))
+            Death_bar2 = pygame.draw.rect(screen, (RED), (Health_bar_pos2[0] + Player_health, Health_bar_pos2[1], 100 - Player_health, 15))
 
     #Damage logic
     if math.hypot(Player_pos[0] - AI_pos[0], Player_pos[1] - AI_pos[1]) < AI_radius + Player_radius:
@@ -148,6 +191,7 @@ while run:
             Player_pos = [WIDTH/2, HEIGHT/2]
             AI_pos = [100,100]
             bullet_list = []
+            time_elapsed = 60
 
     keys = pygame.key.get_pressed()
 
