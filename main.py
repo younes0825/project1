@@ -38,7 +38,7 @@ Random_pos = [random.randint(0,800), random.randint(0,600)]
 
 def move_ai():
     if AI_health > 0:
-        global kill_count
+        global kill_count, AI_speed
         pygame.draw.circle(screen, (BLACK), (AI_pos), 15)
         dx = Player_pos[0] - AI_pos[0]
         dy = Player_pos[1] - AI_pos[1]
@@ -53,6 +53,7 @@ def move_ai():
     else:
         respawn_new_ai()
         kill_count += 1
+        AI_speed += 0.2
 
 #Respawn AI
 def respawn_new_ai():
@@ -119,6 +120,31 @@ def game_lost():
                 if event.key == pygame.K_r:
                     return True
 
+#Game end screen
+def end_game():
+    global kill_count
+    Font = pygame.font.Font(None, 74)
+    Small_font = pygame.font.Font(None, 50)
+    Small_font2 = pygame.font.Font(None, 40)
+    text = Font.render("Game over!", True, BLACK)
+    Kill_total = Small_font.render(str("Total kills:  "+str(kill_count)), True, BLACK)
+    restart_text = Small_font2.render("Press 'R' to restart", True, BLACK)
+    screen.fill(GREEN)
+    screen.blit(text, (WIDTH/2 - text.get_width()/2, HEIGHT/2 - 30))
+    screen.blit(Kill_total, (WIDTH/2 - Kill_total.get_width()/2, HEIGHT/2 - 150))
+    screen.blit(restart_text, (WIDTH/2 - restart_text.get_width()/2, HEIGHT/2 + 40))
+    pygame.display.update()
+
+    while True:
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_r:
+                    return True
+
 run = True
 while run:
 
@@ -136,6 +162,16 @@ while run:
         if time_elapsed > 0:
             time_elapsed -= 1
         last_time_checked = time_tracker
+
+    if time_elapsed <= 0:
+        if end_game():
+            AI_health = 100
+            Player_health = 100
+            Player_pos = [WIDTH/2, HEIGHT/2]
+            AI_pos = [100,100]
+            bullet_list = []
+            time_elapsed = 60
+            kill_count = 0
 
     #Kill counter
     kill_counter()
