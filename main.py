@@ -133,7 +133,7 @@ while run:
     #Timer
     time_tracker = pygame.time.get_ticks()
     if time_tracker - last_time_checked >= 1000:
-        if time_elapsed >= 0:
+        if time_elapsed > 0:
             time_elapsed -= 1
         last_time_checked = time_tracker
 
