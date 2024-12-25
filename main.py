@@ -53,7 +53,7 @@ def move_ai():
     else:
         respawn_new_ai()
         kill_count += 1
-        AI_speed += 0.2
+        AI_speed += 0.15
 
 #Respawn AI
 def respawn_new_ai():
@@ -145,6 +145,16 @@ def end_game():
                 if event.key == pygame.K_r:
                     return True
 
+#Health pickup
+Medkit_pos_list = [random.randint(20,780), random.randint(20,580)]
+Medkit_radius = 15
+last_pickup_time = pygame.time.get_ticks()
+
+def spawn_medkit():
+    pygame.draw.circle(screen, (GREEN), (Medkit_pos_list), Medkit_radius)
+    pygame.draw.rect(screen, (WHITE), (Medkit_pos_list[0]- 2.5, Medkit_pos_list[1] - 10, 5, 20))
+    pygame.draw.rect(screen, (WHITE), (Medkit_pos_list[0] - 10, Medkit_pos_list[1] - 3, 20, 5))
+
 run = True
 while run:
 
@@ -172,6 +182,7 @@ while run:
             bullet_list = []
             time_elapsed = 60
             kill_count = 0
+            AI_speed = 3
 
     #Kill counter
     kill_counter()
@@ -229,6 +240,26 @@ while run:
             bullet_list = []
             time_elapsed = 60
             kill_count = 0
+            AI_speed = 3
+
+    #Health Pickup
+    if math.hypot(Player_pos[0] - Medkit_pos_list[0], Player_pos[1] - Medkit_pos_list[1]) < Medkit_radius + Player_radius:
+        if Player_health < 100:
+            Medkit_pos_list = [random.randint(20, 780), random.randint(20, 580)]
+            Player_health += 10
+            Medkit_pos_list = [-100, -100]
+            last_pickup_time = pygame.time.get_ticks()
+
+    Medkit_cooldown = 10000
+    Medkit_cooldown_track = pygame.time.get_ticks()
+
+    if Medkit_cooldown_track - last_pickup_time >= Medkit_cooldown:
+        if Medkit_pos_list == [-100, -100]:  
+            Medkit_pos_list = [random.randint(20, 780), random.randint(20, 580)]
+
+    if Medkit_pos_list != [-100, -100]:
+        if Medkit_cooldown_track - last_pickup_time >= Medkit_cooldown:
+            spawn_medkit()
 
     keys = pygame.key.get_pressed()
 
